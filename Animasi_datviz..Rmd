@@ -1,0 +1,148 @@
+---
+title: "Animasi Grafik dengan gganimate"
+author: "windy duan pasaribu"
+date: "2025-11-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Animasi Grafik dengan gganimate
+
+Pada tutorial ini saya akan menjelaskan step by step membuat animasi di R menggunakan packages gganimate. gganimate adalah ekstensi dari ggplot2 untuk membuat animasi grafik…
+
+## 1 Instalasi dan Persiapan
+
+```{r}
+library(gapminder)
+library(ggplot2)
+library(gganimate)
+
+```
+
+Tahap selanjutnya adalah import data dari gapminder di dalam dataset ini terdapat 1704 observasi dan 6 variabel. Variabel dalam dataset ini adalah:
+
+- Country adalah Nama Negara
+
+- Continent adalah Nama Benua
+
+- Year adalah Tahun dari setiap data
+
+- LifeExp adalah Angka harapan Hidup
+
+- Pop adalah Populasi setiap negara per tahun
+
+- gdpPercap adalah GDP per kapita setiap negara per tahun
+
+## 2 Import Data
+
+Pada bagian ini, kita akan menggunakan dataset gapminder, yang sudah tersedia di dalam paket gapminder. Berikut adalah langkah-langkahnya:
+
+```{r}
+library(gapminder)
+data=gapminder
+data
+
+
+```
+Dari tabel di atas, kita bisa melihat bahwa harapan hidup, populasi, dan PDB per kapita berubah seiring waktu. Nantinya, data ini bisa kita gunakan untuk membuat animasi dengan gganimate guna melihat bagaimana setiap negara berkembang dari waktu ke waktu.
+
+## 3 Membuat Plot Dasar Statis
+
+Sebelum kita membuat animasi dengan gganimate, langkah pertama adalah membuat plot statis menggunakan ggplot2. Plot ini akan menjadi dasar animasi yang akan kita buat nanti.
+
+```{r}
+library(gapminder)
+library(ggplot2)
+gapminder_plot <- ggplot(
+  gapminder, 
+  aes(x = gdpPercap, y=lifeExp, size = pop, colour = continent, size = pop, frame = year)
+  ) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_d() +
+  scale_x_log10() +
+  labs(x = "GDP per capita", y = "Life expectancy")
+gapminder_plot
+
+```
+
+
+Plot ini masih bersifat statis. Untuk menambahkan animasi, kita nantinya akan memanfaatkan gganimate dengan menambahkan dimensi waktu berdasarkan variabel year.
+
+## 4 Menambahkan Transisi
+
+Setelah membuat plot statis, langkah berikutnya adalah menambahkan transisi agar grafik menjadi animasi. Kita akan menggunakan fungsi transition_time() dari paket gganimate untuk mengubah visualisasi berdasarkan dimensi waktu (year). Animasi yang dihasilkan akan menunjukkan bagaimana GDP per kapita, harapan hidup, dan populasi berubah dari tahun ke tahun di berbagai negara.
+
+```{r}
+
+gapminder_plot + transition_time(year) +
+  labs(title = "Year: {frame_time}")
+
+```
+
+## 5 Membuat Plot Tiap Benua
+
+Setelah menambahkan animasi dasar, kita bisa memperjelas visualisasi dengan memisahkan tiap benua ke dalam subplot terpisah menggunakan fungsi facet_wrap(). Ini akan membantu kita melihat perkembangan masing-masing benua secara lebih detail. Animasi ini akan menampilkan lima subplot (Asia, Eropa, Afrika, Amerika, dan Oseania) yang masing-masing menunjukkan perkembangan GDP per kapita dan harapan hidup dari tahun ke tahun.
+
+```{r}
+library(gganimate)
+gapminder_plot + facet_wrap(~continent) +
+  transition_time(year) +
+  labs(title = "Year: {frame_time}")
+
+```
+## 6 Membuat Plot Dinamis
+
+Untuk membuat animasi yang lebih menarik, kita bisa menggunakan view_follow() agar tampilan grafik mengikuti pergerakan data secara dinamis. Dengan fixed_y = TRUE, sumbu Y akan tetap, sedangkan sumbu X bisa bergerak mengikuti perubahan data. Dengan view_follow(), tampilan grafik akan lebih interaktif, terutama jika terdapat perubahan signifikan dalam GDP per kapita dari waktu ke waktu.
+
+```{r}
+library(gganimate)
+gapminder_plot + transition_time(year) +
+  labs(title = "Year: {frame_time}") +
+  view_follow(fixed_y = TRUE)
+
+```
+
+## 7 Membuat Bayangan Animasi
+
+Agar animasi lebih menarik dan mudah diikuti, kita bisa menambahkan efek bayangan gerak menggunakan fungsi shadow_wake() dari gganimate. Dengan efek ini, titik-titik akan meninggalkan jejak samar yang menunjukkan lintasan pergerakannya. Animasi akan menampilkan titik-titik yang bergerak dari tahun ke tahun dengan efek bayangan yang menunjukkan lintasan pergerakan setiap negara. Ini sangat berguna untuk menunjukkan tren perubahan secara lebih jelas.
+
+```{r}
+library(gganimate)
+gapminder_plot + transition_time(year) +
+  labs(title = "Year: {frame_time}") +
+  shadow_wake(wake_length = 0.1, alpha = FALSE)
+
+```
+
+## 8 Menampilkan Jejak Data
+
+Untuk melihat lintasan pergerakan setiap negara dalam animasi, kita bisa menggunakan shadow_mark() dari gganimate. Fungsi ini akan mempertahankan titik-titik sebelumnya sebagai jejak data, sehingga kita bisa melihat bagaimana suatu negara berkembang dari tahun ke tahun. Animasi ini akan menampilkan pergerakan setiap negara dari tahun ke tahun dengan jejak yang tetap terlihat. Ini memudahkan kita untuk memahami tren perubahan GDP per kapita dan harapan hidup dari waktu ke waktu.
+
+```{r}
+library(gganimate)
+gapminder_plot + transition_time(year) +
+  labs(title = "Year: {frame_time}") +
+  shadow_mark(alpha = 0.3, size = 0.5)
+
+```
+
+Dengan menggunakan gganimate, kita bisa mengubah grafik statis menjadi animasi yang lebih interaktif dan informatif. Dalam eksplorasi ini, kita telah:
+
+✅ Membuat visualisasi dasar dengan ggplot2
+
+✅ Menambahkan animasi waktu menggunakan transition_time()
+
+✅ Membuat subplot per benua dengan facet_wrap()
+
+✅ Menampilkan pergerakan dinamis dengan view_follow()
+
+✅ Menambahkan efek bayangan menggunakan shadow_wake()
+
+✅ Menampilkan jejak perubahan data dengan shadow_mark()
+
+Hasilnya? Tren perkembangan GDP per kapita, harapan hidup, dan populasi dari waktu ke waktu bisa lebih mudah dipahami! 
+
+Dengan sedikit kreativitas, kita bisa membuat animasi yang lebih menarik dan eksploratif untuk berbagai jenis data. gganimate bukan hanya alat visualisasi, tetapi juga bisa menjadi media storytelling yang powerful dalam data science!. Tertarik mencoba animasi lain? Eksplorasi lebih lanjut dengan gganimate dan buat visualisasi yang semakin keren! 
